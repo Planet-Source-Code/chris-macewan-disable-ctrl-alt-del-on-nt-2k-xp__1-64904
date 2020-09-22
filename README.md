@@ -1,0 +1,243 @@
+﻿<div align="center">
+
+## Disable Ctrl \- Alt \- Del on NT/2K/XP
+
+<img src="PIC200645115385504.JPG">
+</div>
+
+### Description
+
+This article is designed to show you the nesscasary steps to disable all buttons in the 'Windows Security' Dialog included in all NT Based Systems.
+ 
+### More Info
+ 
+
+
+<span>             |<span>
+---                |---
+**Submitted On**   |2006-04-06 01:40:02
+**By**             |[Chris MacEwan](https://github.com/Planet-Source-Code/PSCIndex/blob/master/ByAuthor/chris-macewan.md)
+**Level**          |Intermediate
+**User Rating**    |4.8 (29 globes from 6 users)
+**Compatibility**  |VB 4\.0 \(32\-bit\), VB 5\.0, VB 6\.0
+**Category**       |[Registry](https://github.com/Planet-Source-Code/PSCIndex/blob/master/ByCategory/registry__1-36.md)
+**World**          |[Visual Basic](https://github.com/Planet-Source-Code/PSCIndex/blob/master/ByWorld/visual-basic.md)
+**Archive File**   |[Disable\_Ct198543462006\.zip](https://github.com/Planet-Source-Code/chris-macewan-disable-ctrl-alt-del-on-nt-2k-xp__1-64904/archive/master.zip)
+
+
+
+
+
+### Source Code
+
+<p><b><font face="Tahoma" size="5">Disabling 'Windows Security Dialog'</font></b></p>
+<p><font face="Tahoma">Every time you open the &quot;Windows Security&quot; dialog, it
+checks 5 registry keys in at gives you the choice of buttons based on that.<br>
+<br>
+In this article I will show you how to write a sub that will quickly
+disable/enable any button in the WS dialog (bar Cancel)</font></p>
+<p><font face="Tahoma">In the Registry there are 5 <b>REG_DWord</b> Keys at:</font></p>
+<p><font face="Tahoma"><font size="1"><b>HKEY_CURRENT_USER</b>\Software\Microsoft\Windows\CurrentVersion\Policies\System\<b>DisableLockWorkStation</b>&nbsp;&nbsp;&nbsp;
+-&gt; Disables 'Lock Workstation' Button<br>
+<b>HKEY_CURRENT_USE</b>R\Software\Microsoft\Windows\CurrentVersion\Policies\System\<b>DisableTaskMgr&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+-</b>&gt; Disables 'Task Manager' Button<br>
+<b>HKEY_CURRENT_USER</b>\Software\Microsoft\Windows\CurrentVersion\Policies\System\<b>DisableChangePassword&nbsp;&nbsp;&nbsp;
+-</b>&gt; Disables 'Change Password' Button<br>
+<b>HKEY_CURRENT_USER</b>\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer\<b>NoLogoff&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+-</b>&gt; Disables 'Logoff' Button<br>
+<b>HKEY_CURRENT_USER</b>\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer\</font><b><font size="1">NoClose&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</font></b><font size="1"><b>-</b>&gt; Disables 'Shutdown' Button</font></font></p>
+<p><font face="Tahoma">If any of these values are set to '1' the button will be
+disabled.</font></p>
+<p><font face="Tahoma">Declarations:</font></p>
+<p><font face="Tahoma" size="2"><font color="#000080">Declare Function</font>
+RegSetValueEx <font color="#000080">Lib</font> &quot;advapi32.dll&quot;
+<font color="#000080">Alias</font> &quot;RegSetValueExA&quot; (<font color="#000080">ByVal</font>
+HKey <font color="#000080">As Long</font>, <font color="#000080">ByVal</font>
+lpValueName <font color="#000080">As String</font>, <font color="#000080">ByVal</font>
+Reserved <font color="#000080">As Long</font>, <font color="#000080">ByVal</font>
+dwType <font color="#000080">As</font> <font color="#000080">Long</font>, lpData
+As <font color="#000080">Any</font>, <font color="#000080">ByVal</font> cbData
+<font color="#000080">As Long</font>) <font color="#000080">As Long</font><br>
+<br>
+<font color="#000080">Declare Function</font> RegCloseKey <font color="#000080">
+Lib</font> &quot;advapi32.dll&quot; _<br>
+(<font color="#000080">ByVal</font> HKey <font color="#000080">As Long</font>) _<br>
+<font color="#000080">As Long</font><br>
+<br>
+<font color="#000080">Declare Function</font> RegCreateKey <font color="#000080">
+Lib</font> &quot;advapi32.dll&quot; _<br>
+<font color="#000080">Alias</font> &quot;RegCreateKeyA&quot; _<br>
+(<font color="#000080">ByVal</font> HKey <font color="#000080">As Long</font>, _<br>
+<font color="#000080">ByVal</font> lpSubKey <font color="#000080">As String</font>,
+_<br>
+phkResult <font color="#000080">As Long</font>) _<br>
+<font color="#000080">As Long<br>
+</font><br>
+<font color="#000080">Declare Function</font> RegOpenKeyEx <font color="#000080">
+Lib</font> &quot;advapi32.dll&quot; _<br>
+<font color="#000080">Alias</font> &quot;RegOpenKeyExA&quot; _<br>
+(<font color="#000080">ByVal</font> HKey <font color="#000080">As Long</font>, _<br>
+<font color="#000080">ByVal</font> lpSubKey <font color="#000080">As String</font>,
+_<br>
+<font color="#000080">ByVal</font> ulOptions <font color="#000080">As Long</font>,
+_<br>
+<font color="#000080">ByVal</font> samDesired <font color="#000080">As Long</font>,
+_<br>
+phkResult <font color="#000080">As Long</font>) _<br>
+<font color="#000080">As Long</font><br>
+<br>
+<font color="#000080">Enum</font> regKey</font><blockquote>
+	<p><font face="Tahoma" size="2">Logoff = 0<br>
+	Shutdown = 1<br>
+	ChangePassword = 2<br>
+	TaskMgr = 3<br>
+	LockWorkstation = 4</font></blockquote>
+<p><font face="Tahoma" size="2"><font color="#000080">End Enum</font><br>
+<br>
+<font color="#000080">Enum</font> RegistryErrorCodes</font><blockquote>
+	<p><font face="Tahoma" size="2">ERROR_ACCESS_DENIED = 5&amp;<br>
+	ERROR_INVALID_PARAMETER = 87<br>
+	ERROR_MORE_DATA = 234<br>
+	ERROR_NO_MORE_ITEMS = 259<br>
+	ERROR_SUCCESS = 0&amp;</font></blockquote>
+<p><font face="Tahoma" size="2"><font color="#000080">End Enum</font><br>
+<br>
+<font color="#000080">Enum</font> RegistryLongTypes</font><blockquote>
+	<p><font face="Tahoma" size="2">REG_BINARY = 3 <font color="#008000">'
+	Binary Type</font><br>
+	REG_DWORD = 4 <font color="#008000">' 32-bit number</font><br>
+	REG_DWORD_BIG_ENDIAN = 5 <font color="#008000">' 32-bit number</font><br>
+	REG_DWORD_LITTLE_ENDIAN = 4 <font color="#008000">' 32-bit number (same as
+	REG_DWORD)</font></font></blockquote>
+<p><font face="Tahoma" size="2"><font color="#000080">End Enum</font><br>
+<br>
+Enum RegistryKeyAccess</font><blockquote>
+	<p><font face="Tahoma" size="2">KEY_CREATE_LINK = &amp;H20<br>
+	KEY_CREATE_SUB_KEY = &amp;H4<br>
+	KEY_ENUMERATE_SUB_KEYS = &amp;H8<br>
+	KEY_EVENT = &amp;H1<br>
+	KEY_NOTIFY = &amp;H10<br>
+	KEY_QUERY_VALUE = &amp;H1<br>
+	KEY_SET_VALUE = &amp;H2<br>
+	READ_CONTROL = &amp;H20000<br>
+	STANDARD_RIGHTS_ALL = &amp;H1F0000<br>
+	STANDARD_RIGHTS_REQUIRED = &amp;HF0000<br>
+	SYNCHRONIZE = &amp;H100000<br>
+	STANDARD_RIGHTS_EXECUTE = (READ_CONTROL)<br>
+	STANDARD_RIGHTS_READ = (READ_CONTROL)<br>
+	STANDARD_RIGHTS_WRITE = (READ_CONTROL)<br>
+	KEY_ALL_ACCESS = ((STANDARD_RIGHTS_ALL + KEY_QUERY_VALUE + KEY_SET_VALUE +
+	KEY_CREATE_SUB_KEY + KEY_ENUMERATE_SUB_KEYS + KEY_NOTIFY + KEY_CREATE_LINK)
+	And (Not SYNCHRONIZE))<br>
+	KEY_READ = ((STANDARD_RIGHTS_READ Or KEY_QUERY_VALUE Or
+	KEY_ENUMERATE_SUB_KEYS Or KEY_NOTIFY) And (Not SYNCHRONIZE))<br>
+	KEY_EXECUTE = ((KEY_READ) And (Not SYNCHRONIZE))<br>
+	KEY_WRITE = ((STANDARD_RIGHTS_WRITE Or KEY_SET_VALUE Or KEY_CREATE_SUB_KEY)
+	And (Not SYNCHRONIZE))</font></blockquote>
+<p><font face="Tahoma" size="2"><font color="#000080">End Enum</font><br>
+<br>
+<font color="#000080">Enum </font>RegistryHives</font><blockquote>
+	<p><font face="Tahoma" size="2">HKEY_CLASSES_ROOT = &amp;H80000000<br>
+	HKEY_CURRENT_CONFIG = &amp;H80000005<br>
+	HKEY_CURRENT_USER = &amp;H80000001<br>
+	HKEY_DYN_DATA = &amp;H80000006<br>
+	HKEY_LOCAL_MACHINE = &amp;H80000002<br>
+	HKEY_PERFORMANCE_DATA = &amp;H80000004<br>
+	HKEY_USERS = &amp;H80000003</font></blockquote>
+<p><font face="Tahoma" size="2" color="#000080">End Enum</font><p><font face="Tahoma">The following subs shows how to set a registry key:</font></p>
+<p><font face="Tahoma" size="2"><font color="#000080">Public Sub</font>
+CreateKey(<font color="#000080">ByVal</font> EnmHive <font color="#000080">As
+Long</font>, <font color="#000080">ByVal</font> StrSubKey <font color="#000080">
+As String</font>, <font color="#000080">ByVal</font> strValueName
+<font color="#000080">As String</font>, <font color="#000080">ByVal</font>
+LngData <font color="#000080">As Long</font>, <font color="#000080">Optional
+ByVal</font> EnmType <font color="#000080">As</font> RegistryLongTypes =
+REG_DWORD_LITTLE_ENDIAN)</font><blockquote>
+	<p><font face="Tahoma" size="2"><font color="#000080">Dim</font> HKey
+	<font color="#000080">As Long</font> <font color="#008000">'Holds a pointer
+	to the registry key</font><br>
+	<font color="#008000">'Create the Registry Key</font><br>
+	<font color="#000080">Call</font> CreateSubKey(EnmHive, StrSubKey)<br>
+	<font color="#008000">'Open the registry key</font><br>
+	HKey = GetSubKeyHandle(EnmHive, StrSubKey, KEY_ALL_ACCESS)<br>
+	<font color="#008000">'Set the registry value</font><br>
+	RegSetValueEx HKey, strValueName, 0, EnmType, LngData, 4<br>
+	<font color="#008000">'Close the registry key</font><br>
+	RegCloseKey HKey</font></blockquote>
+<p><font face="Tahoma" size="2"><font color="#000080">End Sub</font><br>
+<br>
+<font color="#000080">Public Sub</font> CreateSubKey(<font color="#000080">ByVal</font>
+EnmHive <font color="#000080">As</font> RegistryHives, <font color="#000080">
+ByVal</font> StrSubKey<font color="#000080"> As String</font>)</font><blockquote>
+	<p><font face="Tahoma" size="2"><font color="#000080">Dim</font> HKey
+	<font color="#000080">As Long</font> <font color="#008000">'Holds the handle
+	from the created key.</font><br>
+	<font color="#008000">'Create the Key</font><br>
+	RegCreateKey EnmHive, StrSubKey &amp; Chr(0), HKey<br>
+	<font color="#008000">'Close the key</font><br>
+	RegCloseKey HKey</font></blockquote>
+<p><font face="Tahoma" size="2"><font color="#000080">End Sub<br>
+</font><br>
+<font color="#000080">Private Function</font> GetSubKeyHandle(<font color="#000080">ByVal</font>
+EnmHive <font color="#000080">As</font> RegistryHives, <font color="#000080">
+ByVal</font> StrSubKey <font color="#000080">As String</font>,<font color="#000080">
+Optional</font> <font color="#000080">ByVal</font> EnmAccess
+<font color="#000080">As</font> RegistryKeyAccess = KEY_READ)
+<font color="#000080">As</font> <font color="#000080">Long</font></font><blockquote>
+	<p><font face="Tahoma" size="2"><font color="#000080">Dim</font> HKey
+	<font color="#000080">As Long</font> <font color="#008000">'Holds the handle
+	of the specified key</font><br>
+	<font color="#000080">Dim</font> RetVal <font color="#000080">As Long </font>
+	<font color="#008000">'Holds the data returned from the registry key</font><br>
+	<font color="#008000">'Open the registry key</font><br>
+	RetVal = RegOpenKeyEx(EnmHive, StrSubKey, 0, EnmAccess, HKey)<br>
+	<font color="#000080">If</font> RetVal &lt;&gt; ERROR_SUCCESS
+	<font color="#000080">Then</font><br>
+	<font color="#008000">'Unable to create key</font><br>
+	HKey = 0<br>
+	<font color="#000080">End If</font><br>
+	GetSubKeyHandle = HKey</font></blockquote>
+<p><font face="Tahoma" size="2" color="#000080">End Function</font><p><font face="Tahoma">The following subs show how to disable buttons in the
+&quot;Windows Security&quot; dialog</font><p><font face="Tahoma" size="2">
+<font color="#000080">Public Sub</font> WinSecurity(<font color="#000080">ByVal</font>
+regSET <font color="#000080">As</font> regKey, <font color="#000080">ByVal</font>
+Enabled <font color="#000080">As Boolean</font>)</font><blockquote>
+	<p><font face="Tahoma" size="2"><font color="#008000">'Declare the variables</font><br>
+	<font color="#000080">Dim</font> Command <font color="#000080">As String</font></font><p>
+	<font face="Tahoma" size="2"><font color="#008000">'Select the key</font><br>
+	<font color="#000080">Select Case</font> regSET</font><blockquote>
+		<p><font face="Tahoma" size="2"><font color="#000080">Case</font>
+		Logoff: Command = &quot;NoLogoff&quot;<br>
+		<font color="#000080">Case</font> Shutdown: Command = &quot;NoClose&quot;<br>
+		Case ChangePassword: Command = &quot;DisableChangePassword&quot;<br>
+		<font color="#000080">Case</font> TaskMgr: Command = &quot;DisableTaskMgr&quot;<br>
+		<font color="#000080">Case</font> LockWorkstation: Command =
+		&quot;DisabeLockWorkstation&quot;</font></blockquote>
+	<p><font face="Tahoma" size="2" color="#000080">End Select</font><p>
+	<font face="Tahoma" size="2"><font color="#008000">'Set the value of the
+	keys</font><br>
+	<font color="#000080">If</font> Command = &quot;NoLogoff&quot; <font color="#000080">
+	Then</font> <font color="#000080">Call</font> CreateKey(HKEY_CURRENT_USER,
+	&quot;Software\Microsoft\Windows\CurrentVersion\Policies\Explorer&quot;, Command,
+	<font color="#000080">Not</font> Enabled): <font color="#000080">GoTo</font>
+	SKIPOUT<br>
+	<font color="#000080">If</font> Command = &quot;NoClose&quot; <font color="#000080">
+	Then</font> <font color="#000080">Call</font> CreateKey(HKEY_CURRENT_USER,
+	&quot;Software\Microsoft\Windows\CurrentVersion\Policies\Explorer&quot;, Command,
+	<font color="#000080">Not</font> Enabled): <font color="#000080">GoTo</font>
+	SKIPOUT<br>
+	<font color="#000080">Call</font> CreateKey(HKEY_CURRENT_USER,
+	&quot;Software\Microsoft\Windows\CurrentVersion\Policies\System&quot;, Command,
+	<font color="#000080">Not</font> Enabled)</font></blockquote>
+<p><font face="Tahoma" size="2">SKIPOUT:</font><p>
+<font face="Tahoma" size="2" color="#000080">End Sub</font><p><font face="Tahoma">Usage:</font><blockquote>
+	<p><font face="Tahoma" size="2"><font color="#000080">WinSecurity</font> (Shutdown,
+	False)</font></blockquote>
+<p><font face="Tahoma">The command would disable the &quot;Shutdown&quot; button in the
+&quot;Windows Security&quot; dialog.</font><p><font face="Tahoma">These functions could be
+implemented into a locking program, to prevent a user from accessing task
+manager to close your program. I do not claim all credit for this as the code is
+not <u><font size="2">COMPLETELY</font></u> mine. I am just providing this article as there was not any article
+existing on PlanetSourceCode at the time of me writing this.</font>
+
